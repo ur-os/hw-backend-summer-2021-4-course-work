@@ -16,7 +16,7 @@ class ThemeModel(db.Model):
     __tablename__ = "themes"
 
     id = db.Column(db.BigInteger(), primary_key=True)
-    title = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(50), nullable=False, unique=True)
 
     def to_dc(self):
         return Theme(**self.to_dict())
@@ -32,7 +32,7 @@ class AnswerModel(db.Model):
     __tablename__ = "answers"
 
     id = db.Column(db.BigInteger(), primary_key=True)
-    title = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(50), nullable=False, unique=True)
     is_correct = db.Column(db.Boolean(), nullable=False)
     question_id = db.Column(
         db.ForeignKey('questions.id', ondelete='CASCADE'), nullable=False

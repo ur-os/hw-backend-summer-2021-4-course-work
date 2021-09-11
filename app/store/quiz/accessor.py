@@ -53,11 +53,10 @@ class QuizAccessor(BaseAccessor):
         return question
 
     async def _get_questions_join(self):
-        return QuestionModel.outerjoin*(
+        return QuestionModel.outerjoin(
             AnswerModel,
             QuestionModel.id == AnswerModel.question_id,
         ).select()
-
 
     async def _get_questions_load(self, query):
         return query.gino.load(
@@ -65,7 +64,7 @@ class QuizAccessor(BaseAccessor):
         ).all()
 
     async def get_question_by_title(self, title: str) -> Optional[Question]:
-        query = self._get_questions_join().where(QuestionModel.title == title)
+        query = (await self._get_questions_join()).where(QuestionModel.title == title)
         questions = await self._get_questions_load(query)
 
         return None if questions is None else questions[0].to_dc()
@@ -76,6 +75,6 @@ class QuizAccessor(BaseAccessor):
             QuestionModel.id == AnswerModel.question_id,
         ).select()
 
-        objs = await self._get_questions_load(self._get_questions_join())
+        objs = await self._get_questions_load(await self._get_questions_join())
 
         return [o.to_dc() for o in objs]
