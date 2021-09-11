@@ -39,6 +39,8 @@ class Config:
     session: SessionConfig = None
     bot: BotConfig = None
     database: DatabaseConfig = None
+    db_host: str = None
+    db_name: str = None
 
 
 def setup_config(app: "Application", config_path: str):

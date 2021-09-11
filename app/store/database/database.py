@@ -28,7 +28,7 @@ class Database:
         )
         self.db = db
         self.db.bind = self._engine
+        await self.db.create_all()
 
     async def disconnect(self, *_, **kw):
-        raise NotImplementedError
-
+        pass

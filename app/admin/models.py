@@ -18,7 +18,12 @@ class Admin:
     def from_session(cls, session: Optional[dict]) -> Optional["Admin"]:
         return cls(id=session["admin"]["id"], email=session["admin"]["email"])
 
+
 # TODO
 # Дописать все необходимые поля модели
 class AdminModel(db.Model):
     __tablename__ = "admins"
+
+    id = db.Column(db.String(36), nullable=False, primary_key=True)
+    email = db.Column(db.Unicode(), nullable=False)
+    password = db.Column(db.Unicode(), nullable=False)
