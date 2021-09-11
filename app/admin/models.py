@@ -27,3 +27,6 @@ class AdminModel(db.Model):
     id = db.Column(db.String(36), nullable=False, primary_key=True)
     email = db.Column(db.Unicode(), nullable=False)
     password = db.Column(db.Unicode(), nullable=False)
+
+    def to_dc(self):
+        return Admin(id=int(self.id), email=self.email, password=self.password)

@@ -23,21 +23,11 @@ class ThemeModel(db.Model):
 
 
 @dataclass
-class Question:
-    id: Optional[int]
-    title: str
-    theme_id: int
-    answers: list["Answer"]
-
-
-@dataclass
 class Answer:
     title: str
     is_correct: bool
 
 
-# TODO
-# Дописать все необходимые поля модели
 class AnswerModel(db.Model):
     __tablename__ = "answers"
 
@@ -45,15 +35,21 @@ class AnswerModel(db.Model):
     title = db.Column(db.String(50), nullable=False)
     is_correct = db.Column(db.Boolean(), nullable=False)
     question_id = db.Column(
-        db.ForeignKey('question.id', ondelete='CASCADE'), nullable=False
+        db.ForeignKey('questions.id', ondelete='CASCADE'), nullable=False
     )
 
     def to_dc(self):
         return Answer(title=self.title, is_correct=self.is_correct)
 
 
-# TODO
-# Дописать все необходимые поля модели
+@dataclass
+class Question:
+    id: Optional[int]
+    title: str
+    theme_id: int
+    answers: list["Answer"]
+
+
 class QuestionModel(db.Model):
     __tablename__ = "questions"
 
