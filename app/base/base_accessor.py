@@ -19,4 +19,4 @@ class BaseAccessor:
         return
 
     async def disconnect(self, app: "Application"):
-        pass
+        return
