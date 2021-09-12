@@ -31,4 +31,5 @@ class Database:
         self.db.bind = self._engine
 
     async def disconnect(self, *_, **kw):
-        pass
+        self.db.pop_bind()
+

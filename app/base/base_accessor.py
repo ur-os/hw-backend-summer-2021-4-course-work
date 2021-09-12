@@ -19,4 +19,5 @@ class BaseAccessor:
         return
 
     async def disconnect(self, app: "Application"):
+        await self.app.database.disconnect()
         return
