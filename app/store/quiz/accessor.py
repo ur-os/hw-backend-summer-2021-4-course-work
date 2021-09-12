@@ -43,7 +43,7 @@ class QuizAccessor(BaseAccessor):
         )
 
     async def create_question(
-        self, title: str, theme_id: int, answers: List[Answer]
+            self, title: str, theme_id: int, answers: List[Answer]
     ) -> Question:
         obj = await QuestionModel.create(title=title, theme_id=theme_id)
         question = obj.to_dc()
@@ -64,8 +64,17 @@ class QuizAccessor(BaseAccessor):
         ).all()
 
     async def get_question_by_title(self, title: str) -> Optional[Question]:
-        query = (await self._get_questions_join()).where(QuestionModel.title == title)
-        questions = await self._get_questions_load(query)
+        query = QuestionModel.outerjoin(
+            AnswerModel,
+            QuestionModel.id == AnswerModel.question_id,
+        )
+        query = query.select().where(QuestionModel.title == title)
+        questions = await query.gino.load(
+            QuestionModel.distinct(QuestionModel.id).load(add_answer=AnswerModel.load())
+        ).all()
+
+        if len(questions) == 0:
+            return None
 
         return None if questions is None else questions[0].to_dc()
 
@@ -75,6 +84,15 @@ class QuizAccessor(BaseAccessor):
             QuestionModel.id == AnswerModel.question_id,
         ).select()
 
-        objs = await self._get_questions_load(await self._get_questions_join())
+        query = QuestionModel.outerjoin(
+            AnswerModel,
+            QuestionModel.id == AnswerModel.question_id,
+        ).select()
+
+        query = await query.gino.load(
+            QuestionModel.distinct(QuestionModel.id).load(add_answer=AnswerModel.load())
+        ).all()
+
+        objs = query
 
         return [o.to_dc() for o in objs]
