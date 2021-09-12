@@ -73,10 +73,10 @@ class QuizAccessor(BaseAccessor):
             QuestionModel.distinct(QuestionModel.id).load(add_answer=AnswerModel.load())
         ).all()
 
-        if len(questions) == 0:
+        if len(questions) == 0 or not questions:
             return None
 
-        return None if questions is None else questions[0].to_dc()
+        return questions[0].to_dc()
 
     async def list_questions(self, theme_id: Optional[int] = None) -> List[Question]:
         QuestionModel.outerjoin(
