@@ -52,17 +52,6 @@ class QuizAccessor(BaseAccessor):
 
         return question
 
-    async def _get_questions_join(self):
-        return QuestionModel.outerjoin(
-            AnswerModel,
-            QuestionModel.id == AnswerModel.question_id,
-        ).select()
-
-    async def _get_questions_load(self, query):
-        return query.gino.load(
-            QuestionModel.distinct(QuestionModel.id).load(add_answer=AnswerModel.load())
-        ).all()
-
     async def get_question_by_title(self, title: str) -> Optional[Question]:
         query = QuestionModel.outerjoin(
             AnswerModel,
