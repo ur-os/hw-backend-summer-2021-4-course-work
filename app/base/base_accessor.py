@@ -1,5 +1,7 @@
 import typing
 from logging import getLogger
+from app.store.database.gino import db
+
 
 if typing.TYPE_CHECKING:
     from app.web.app import Application
@@ -13,9 +15,9 @@ class BaseAccessor:
         app.on_cleanup.append(self.disconnect)
 
     async def connect(self, app: "Application"):
-        # await self.app.database.connect(db=f'postgresql://{app.config.db_host}/{app.config.db_name}')
-
+        # await self.app.database.connect()
         return
 
     async def disconnect(self, app: "Application"):
+        # await self.app.database.disconnect()
         pass

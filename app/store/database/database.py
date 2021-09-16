@@ -26,9 +26,10 @@ class Database:
             min_size=1,
             max_size=1,
         )
+
         self.db = db
         self.db.bind = self._engine
-        await self.db.create_all()
 
     async def disconnect(self, *_, **kw):
-        pass
+        # await self.db.pop_bind().close()
+        return

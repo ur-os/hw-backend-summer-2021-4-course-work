@@ -12,9 +12,5 @@ database:
   password: postgres
   database: postgres
 bot:
-  token: group_token
-  group_id: 1
-credentials:
-  username: urick0s
-  db_name: project
-  db_host: localhost
+  token: 196378a02c47fb84ea4c27a29d0cbe312bf4cd8192d89d9c502446e008de4794d97e3a184fec0ea01532e
+  group_id: 206827067
