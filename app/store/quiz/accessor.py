@@ -57,6 +57,7 @@ class QuizAccessor(BaseAccessor):
             AnswerModel,
             QuestionModel.id == AnswerModel.question_id,
         )
+
         query = query.select().where(QuestionModel.title == title)
         questions = await query.gino.load(
             QuestionModel.distinct(QuestionModel.id).load(add_answer=AnswerModel.load())
@@ -67,12 +68,7 @@ class QuizAccessor(BaseAccessor):
 
         return questions[0].to_dc()
 
-    async def list_questions(self, theme_id: Optional[int] = None) -> List[Question]:
-        QuestionModel.outerjoin(
-            AnswerModel,
-            QuestionModel.id == AnswerModel.question_id,
-        ).select()
-
+    async def list_questions(self) -> List[Question]:
         query = QuestionModel.outerjoin(
             AnswerModel,
             QuestionModel.id == AnswerModel.question_id,

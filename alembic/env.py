@@ -10,9 +10,7 @@ from app.store.database.gino import db
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from app.web.config import Config, DatabaseConfig
-from app.admin.models import AdminModel
-from app.quiz.models import ThemeModel, QuestionModel, AnswerModel
+from app.web.config import DatabaseConfig
 
 with open(os.environ['CONFIGPATH']) as fh:
     cfg = yaml.safe_load(fh)
