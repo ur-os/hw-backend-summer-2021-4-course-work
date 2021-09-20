@@ -14,10 +14,12 @@ class BotManager:
         self.logger = getLogger("handler")
 
     async def handle_updates(self, updates: list[Update]):
-        for update in updates:
-            await self.app.store.vk_api.send_message(
-                Message(
-                    user_id=update.object.user_id,
-                    text="Привет!",
+        if updates:
+
+            for update in updates:
+                await self.app.store.vk_api.send_message(
+                    Message(
+                        user_id=update.object.user_id,
+                        text="Привет!",
+                    )
                 )
-            )

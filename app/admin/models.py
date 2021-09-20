@@ -22,7 +22,7 @@ class Admin:
 class AdminModel(db.Model):
     __tablename__ = "admins"
 
-    id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(), nullable=False)
     password = db.Column(db.Unicode(), nullable=False)
 

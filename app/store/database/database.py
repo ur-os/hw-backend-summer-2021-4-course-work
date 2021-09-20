@@ -32,4 +32,5 @@ class Database:
 
     async def disconnect(self, *_, **kw):
         # await self.db.pop_bind().close()
+        # await self.db.release()
         return
