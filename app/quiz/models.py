@@ -78,3 +78,20 @@ class QuestionModel(db.Model):
     @add_answer.setter
     def add_answer(self, val: AnswerModel):
         self._answers.append(val)
+
+
+@dataclass
+class GameState:
+    id: int
+    theme: str
+    duration: int
+    used_questions: list["Question"]
+
+class GameStateModel(db.Model):
+    __tablename__ = "game_states"
+
+    id = db.Column(db.BigInteger(), primary_key=True)
+    title = db.Column(db.String(50), nullable=False, unique=True)
+    theme_id = db.Column(
+        db.ForeignKey('themes.id', ondelete='CASCADE'), nullable=False
+    )

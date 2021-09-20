@@ -28,17 +28,17 @@ class AdminAccessor(BaseAccessor):
 
         # if admin:
         #     if admin.email:
-        #         raise Exception
+        #         raise HTTPConflict
 
-        #  почему не автоикрементится при create
+         # почему не автоикрементится при create
 
-        # obj = await AdminModel.create(
-        #
-        #     email=email,
-        #     password=sha256(password.encode()).hexdigest()
-        # )
-        #
-        # return obj.to_dc()
+        obj = await AdminModel.create(
+
+            email=email,
+            password=sha256(password.encode()).hexdigest()
+        )
+
+        return obj.to_dc()
 
         pass
 
