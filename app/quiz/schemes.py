@@ -13,6 +13,13 @@ class QuestionSchema(Schema):
     answers = fields.Nested("AnswerSchema", many=True, required=True)
 
 
+class GameStateSchema(Schema):
+    id = fields.Int(required=True)
+    state = fields.String(required=False)
+    date = fields.Int(required=False)
+    answered = fields.Dict(required=False, many=True)
+
+
 class AnswerSchema(Schema):
     title = fields.Str(required=True)
     is_correct = fields.Bool(required=True)
@@ -28,3 +35,7 @@ class ThemeIdSchema(Schema):
 
 class ListQuestionSchema(Schema):
     questions = fields.Nested(QuestionSchema, many=True)
+
+
+class ListGameStateSchema(Schema):
+    states = fields.Nested(GameStateSchema, many=True)

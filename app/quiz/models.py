@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 from app.store.database.gino import db
-
+from gino.dialects.asyncpg import JSONB  # the same as in sqlalchemy
+from enum import Enum
 
 @dataclass
 class Theme:
@@ -83,15 +84,28 @@ class QuestionModel(db.Model):
 @dataclass
 class GameState:
     id: int
-    theme: str
-    duration: int
-    used_questions: list["Question"]
+    state: str
+    date: int
+    answered: dict
+
 
 class GameStateModel(db.Model):
     __tablename__ = "game_states"
 
-    id = db.Column(db.BigInteger(), primary_key=True)
-    title = db.Column(db.String(50), nullable=False, unique=True)
-    theme_id = db.Column(
-        db.ForeignKey('themes.id', ondelete='CASCADE'), nullable=False
-    )
+    class StateEnum(Enum):  # for gino/alchemy enum schema
+        STARTED = 'started'
+        FINISHED = 'finished'
+
+    id = db.Column(db.BigInteger(), primary_key=True, unique=True, autoincrement=True)
+    # state = db.Column(db.Enum(StateEnum), nullable=False, default=StateEnum.STARTED)  # AttributeError: module 'gino.schema' has no attribute 'Enum'
+    state = db.Column(db.String(), nullable=False)
+    date = db.Column(db.BigInteger(), nullable=False)
+    answered = db.Column(JSONB, server_default="{}")
+
+    def to_dc(self):
+        return GameState(
+            id=self.id,
+            state=self.state,
+            date=self.date,
+            answered=self.answered
+        )

@@ -10,7 +10,7 @@ database:
   port: 5432
   user: postgres
   password: postgres
-  database: postgres
+  database: project
 bot:
   token: 196378a02c47fb84ea4c27a29d0cbe312bf4cd8192d89d9c502446e008de4794d97e3a184fec0ea01532e
   group_id: 206827067

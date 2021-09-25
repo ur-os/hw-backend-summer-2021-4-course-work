@@ -8,6 +8,8 @@ from app.quiz.schemes import (
     QuestionSchema,
     ThemeIdSchema,
     ListQuestionSchema,
+    GameStateSchema,
+    ListGameStateSchema
 )
 from app.web.app import View
 from app.web.mixins import AuthRequiredMixin
@@ -84,3 +86,26 @@ class QuestionListView(AuthRequiredMixin, View):
                 }
             )
         )
+
+
+class GameStateAddView(AuthRequiredMixin, View):
+    @request_schema(GameStateSchema)
+    @response_schema(GameStateSchema)
+    async def post(self):
+        _id = self.data["id"]
+        state = self.data["state"]
+        date = self.data["date"]
+        answered = self.data["answered"]
+        print(_id)
+        print(state)
+        print(date)
+        print(answered)
+
+
+
+        title = self.data["title"]
+        existing_theme = await self.store.quizzes.get_theme_by_title(title)
+        if existing_theme:
+            raise HTTPConflict
+        theme = await self.store.quizzes.create_theme(title=title)
+        return json_response(data=ThemeSchema().dump(theme))
