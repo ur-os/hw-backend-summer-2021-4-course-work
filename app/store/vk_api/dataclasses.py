@@ -4,6 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class UpdateObject:
     id: int
+    date: int
     user_id: int
     body: str
 

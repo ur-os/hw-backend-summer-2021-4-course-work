@@ -19,14 +19,16 @@ class Admin:
         return cls(id=session["admin"]["id"], email=session["admin"]["email"])
 
 
-# TODO
-# Дописать все необходимые поля модели
 class AdminModel(db.Model):
     __tablename__ = "admins"
 
-    id = db.Column(db.String(36), nullable=False, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(), nullable=False)
     password = db.Column(db.Unicode(), nullable=False)
 
     def to_dc(self):
-        return Admin(id=int(self.id), email=self.email, password=self.password)
+        return Admin(
+            id=self.id,
+            email=self.email,
+            password=self.password
+        )
