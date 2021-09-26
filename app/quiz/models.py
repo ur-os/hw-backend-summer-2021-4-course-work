@@ -118,14 +118,3 @@ class GameStateModel(db.Model):
             user_id=self.user_id,
             answered=self.answered
         )
-
-    # def to_base_dc(self):
-    #     return GameState(
-    #         id=self.id,
-    #         state=self.state,
-    #         theme=self.theme,
-    #         date=self.date,
-    #         start_date=self.start_date,
-    #         user_id=self.user_id,
-    #         answered=self.answered
-    #     )

@@ -37,17 +37,17 @@ class QuizAccessor(BaseAccessor):
 
     async def set_game_session_theme(self, user_id: int, theme: str):
         game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
-        status = await game.update(theme=theme)
+        status = await game.update(theme=theme).apply()
         return status
 
     async def set_game_session_date(self, user_id: int, date: int):
         game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
-        status = await game.update(date=date)
+        status = await game.update(date=date).apply()
         return status
 
     async def set_game_session_state(self, user_id: int, state: str):
         game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
-        status = await game.update(state=state)
+        status = await game.update(state=state).apply()
         return status
 
     async def get_theme_by_title(self, title: str) -> Optional[Theme]:
@@ -115,3 +115,9 @@ class QuizAccessor(BaseAccessor):
 
         return [o.to_dc() for o in objs]
 
+    async def list_questions_via_theme(self, title: str) -> List[Question]:
+        theme = await self.app.store.quizzes.get_theme_by_title(title)
+        query = await QuestionModel.query.where(QuestionModel.theme_id == theme.id).gino.all()
+        objs = query
+
+        return [o.to_dc() for o in objs]
