@@ -14,10 +14,13 @@ class QuestionSchema(Schema):
 
 
 class GameStateSchema(Schema):
-    id = fields.Int(required=True)
+    id = fields.Int(required=False)
     state = fields.String(required=False)
     date = fields.Int(required=False)
     answered = fields.Dict(required=False, many=True)
+    theme = fields.String(required=False)
+    start_date = fields.Int(required=False)
+    user_id = fields.Int(required=True)
 
 
 class AnswerSchema(Schema):

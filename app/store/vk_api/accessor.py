@@ -92,6 +92,7 @@ class VkApiAccessor(BaseAccessor):
                             object=UpdateObject(
                                 id=update["object"]["id"],
                                 user_id=update["object"]["user_id"],
+                                date=update["object"]["date"],
                                 body=update["object"]["body"],
                             ),
                         )

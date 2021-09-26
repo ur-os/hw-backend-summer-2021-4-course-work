@@ -5,9 +5,11 @@ from app.quiz.models import (
     Theme,
     Question,
     Answer,
+    GameState,
     ThemeModel,
     QuestionModel,
     AnswerModel,
+    GameStateModel
 )
 from typing import List
 
@@ -16,6 +18,37 @@ class QuizAccessor(BaseAccessor):
     async def create_theme(self, title: str) -> Theme:
         obj = await ThemeModel.create(title=title)
         return obj.to_dc()
+
+    async def create_game_session(self, state: str, user_id: int) -> GameState:
+        obj = await GameStateModel.create(
+            state=state,
+            user_id=user_id,
+        )
+        return obj.to_dc()
+
+    async def get_game_session_by_user(self, user_id: int) -> Optional[GameState]:
+        obj = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+        return None if obj is None else obj.to_dc()
+
+    async def delete_game_session_by_user(self, user_id: int):
+        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+        status = await game.delete()
+        return status
+
+    async def set_game_session_theme(self, user_id: int, theme: str):
+        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+        status = await game.update(theme=theme)
+        return status
+
+    async def set_game_session_date(self, user_id: int, date: int):
+        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+        status = await game.update(date=date)
+        return status
+
+    async def set_game_session_state(self, user_id: int, state: str):
+        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+        status = await game.update(state=state)
+        return status
 
     async def get_theme_by_title(self, title: str) -> Optional[Theme]:
         obj = await ThemeModel.query.where(ThemeModel.title == title).gino.first()
@@ -81,3 +114,4 @@ class QuizAccessor(BaseAccessor):
         objs = query
 
         return [o.to_dc() for o in objs]
+

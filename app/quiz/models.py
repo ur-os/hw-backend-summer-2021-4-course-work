@@ -23,6 +23,7 @@ class ThemeModel(db.Model):
         return Theme(**self.to_dict())
 
 
+
 @dataclass
 class Answer:
     title: str
@@ -85,7 +86,10 @@ class QuestionModel(db.Model):
 class GameState:
     id: int
     state: str
+    theme: str
     date: int
+    start_date: int
+    user_id: int
     answered: dict
 
 
@@ -97,15 +101,31 @@ class GameStateModel(db.Model):
         FINISHED = 'finished'
 
     id = db.Column(db.BigInteger(), primary_key=True, unique=True, autoincrement=True)
-    # state = db.Column(db.Enum(StateEnum), nullable=False, default=StateEnum.STARTED)  # AttributeError: module 'gino.schema' has no attribute 'Enum'
     state = db.Column(db.String(), nullable=False)
-    date = db.Column(db.BigInteger(), nullable=False)
+    theme = db.Column(db.String(), nullable=True)
+    date = db.Column(db.BigInteger(), nullable=True)  # how long the game been going (default time dimension)
+    start_date = db.Column(db.BigInteger(), nullable=True)  # (default time dimension)
+    user_id = db.Column(db.BigInteger(), nullable=False)
     answered = db.Column(JSONB, server_default="{}")
 
     def to_dc(self):
         return GameState(
             id=self.id,
             state=self.state,
+            theme=self.theme,
             date=self.date,
+            start_date=self.start_date,
+            user_id=self.user_id,
             answered=self.answered
         )
+
+    # def to_base_dc(self):
+    #     return GameState(
+    #         id=self.id,
+    #         state=self.state,
+    #         theme=self.theme,
+    #         date=self.date,
+    #         start_date=self.start_date,
+    #         user_id=self.user_id,
+    #         answered=self.answered
+    #     )
