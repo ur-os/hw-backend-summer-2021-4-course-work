@@ -4,7 +4,7 @@ from logging import getLogger
 
 from app.quiz.models import GameState
 from app.store.vk_api.dataclasses import Update, Message
-
+from app.store.bot.utils import to_string, to_datetime, int_to_datetime
 if typing.TYPE_CHECKING:
     from app.web.app import Application
 
