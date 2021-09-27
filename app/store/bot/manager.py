@@ -19,6 +19,7 @@ class BotManager:
             "/finish",
             "/best_startup",
             "/help",
+            "/score",
         ]
 
     async def handle_updates(self, updates: list[Update]):
@@ -50,14 +51,17 @@ class BotManager:
 
 
     async def ping(self, update: Update):
-        await self.app.store.vk_api.send_message(
+        await self.app.store.vk_api.send_message_chat(
             Message(
                 user_id=update.object.user_id,
+                peer_id=update.object.peer_id,
                 text="P%26%230822%3Bi%26%230822%3Be%26%23"
                      "0822%3Bd%26%230822%3B%20%26%230822%3BP%26%230822%3Bi%26%2308"
                      "22%3Bp%26%230822%3Be%26%230822%3Br%26%230822%3B KTS Studio",
             )
         )
+        members = await self.app.store.vk_api.get_members(update.object.peer_id)
+        print(members)
 
     async def start_game(self, update: Update):
         session = await self.app.store.quizzes.get_game_session_by_user(update.object.user_id)
@@ -196,10 +200,11 @@ class BotManager:
         await self.response(
             update,
             "Список доступных команд:<br>"
-            "/start - начать игру<br>"
-            "/finish - закончить игру<br>"
-            "/best_startup - пасхалочка<br>"
-            "/help - введи ещё раз, давай<br>"
+            "/start -- начать игру<br>"
+            "/finish -- закончить игру<br>"
+            "/score -- текущий счёт игроков"
+            "/best_startup -- пасхалочка<br>"
+            "/help -- введи ещё раз, давай<br>"
         )
 
     async def response(self, update: Update, text: str):
@@ -229,4 +234,5 @@ class BotManager:
 
     async def to_answer(self, update: Update):
         pass
+
 

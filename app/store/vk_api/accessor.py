@@ -6,7 +6,7 @@ from aiohttp import TCPConnector
 from aiohttp.client import ClientSession
 
 from app.base.base_accessor import BaseAccessor
-from app.store.vk_api.dataclasses import Update, Message, UpdateObject
+from app.store.vk_api.dataclasses import Update, Message, UpdateObject, Profile
 from app.store.vk_api.poller import Poller
 
 if typing.TYPE_CHECKING:
@@ -44,20 +44,20 @@ class VkApiAccessor(BaseAccessor):
     def _build_query(host: str, method: str, params: dict) -> str:
         url = host + method + "?"
         if "v" not in params:
-            params["v"] = "5.131"
+            params["v"] = "5.100"
         url += "&".join([f"{k}={v}" for k, v in params.items()])
         return url
 
     async def _get_long_poll_service(self):
         async with self.session.get(
-            self._build_query(
-                host=API_PATH,
-                method="groups.getLongPollServer",
-                params={
-                    "group_id": self.app.config.bot.group_id,
-                    "access_token": self.app.config.bot.token,
-                },
-            )
+                self._build_query(
+                    host=API_PATH,
+                    method="groups.getLongPollServer",
+                    params={
+                        "group_id": self.app.config.bot.group_id,
+                        "access_token": self.app.config.bot.token,
+                    },
+                )
         ) as resp:
             data = (await resp.json())["response"]
             self.logger.info(data)
@@ -68,16 +68,16 @@ class VkApiAccessor(BaseAccessor):
 
     async def poll(self):
         async with self.session.get(
-            self._build_query(
-                host=self.server,
-                method="",
-                params={
-                    "act": "a_check",
-                    "key": self.key,
-                    "ts": self.ts,
-                    "wait": 30,
-                },
-            )
+                self._build_query(
+                    host=self.server,
+                    method="",
+                    params={
+                        "act": "a_check",
+                        "key": self.key,
+                        "ts": self.ts,
+                        "wait": 30,
+                    },
+                )
         ) as resp:
             data = await resp.json()
             self.logger.info(data)
@@ -91,9 +91,9 @@ class VkApiAccessor(BaseAccessor):
                             type=update["type"],
                             object=UpdateObject(
                                 id=update["object"]["id"],
-                                user_id=update["object"]["user_id"],
-                                date=update["object"]["date"],
-                                body=update["object"]["body"],
+                                user_id=update["object"]["from_id"],
+                                peer_id=update["object"]["peer_id"],
+                                body=update["object"]["text"],
                             ),
                         )
                     )
@@ -102,17 +102,65 @@ class VkApiAccessor(BaseAccessor):
 
     async def send_message(self, message: Message) -> None:
         async with self.session.get(
-            self._build_query(
-                API_PATH,
-                "messages.send",
-                params={
-                    "user_id": message.user_id,
-                    "random_id": random.randint(1, 2 ** 32),
-                    "peer_id": "-" + str(self.app.config.bot.group_id),
-                    "message": message.text,
-                    "access_token": self.app.config.bot.token,
-                },
-            )
+                self._build_query(
+                    API_PATH,
+                    "messages.send",
+                    params={
+                        "user_id": message.user_id,
+                        "random_id": random.randint(1, 2 ** 32),
+                        "peer_id": "-" + str(self.app.config.bot.group_id),
+                        "message": message.text,
+                        "access_token": self.app.config.bot.token,
+
+                    },
+                )
         ) as resp:
             data = await resp.json()
             self.logger.info(data)
+
+    async def send_message_chat(self, message: Message) -> None:
+        async with self.session.get(
+                self._build_query(
+                    API_PATH,
+                    "messages.send",
+                    params={
+                        "random_id": random.randint(1, 2 ** 32),
+                        "chat_id": message.peer_id - 2000000000,
+                        "message": message.text,
+                        "access_token": self.app.config.bot.token,
+
+                    },
+                )
+        ) as resp:
+            data = await resp.json()
+            self.logger.info(data)
+
+    async def get_members(self, chat_id: id) -> list[Profile]:
+        async with self.session.get(
+                self._build_query(
+                    API_PATH,
+                    "messages.getConversationMembers",
+                    params={
+                        # "random_id": random.randint(1, 2 ** 32),
+                        "peer_id": chat_id,
+                        # "group_id": 206827067,
+                        "access_token": self.app.config.bot.token,
+                        "fields": "user_id"
+
+                    },
+                )
+        ) as resp:
+            data = await resp.json()
+            response = data.get("response", [])
+            members = []
+            for profile in response["profiles"]:
+                members.append(
+                    Profile(
+                        user_id=profile["id"],
+                        first_name=profile["first_name"],
+                        last_name=profile["last_name"],
+                    )
+                )
+            self.logger.info(data)
+
+        return members
