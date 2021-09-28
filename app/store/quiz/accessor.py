@@ -9,7 +9,13 @@ from app.quiz.models import (
     ThemeModel,
     QuestionModel,
     AnswerModel,
-    GameStateModel
+    GameStateModel,
+    GameModel,
+    Game,
+    PlayerModel,
+    Player,
+    Score,
+    ScoreModel
 )
 from typing import List
 
@@ -19,10 +25,32 @@ class QuizAccessor(BaseAccessor):
         obj = await ThemeModel.create(title=title)
         return obj.to_dc()
 
-    async def create_game_session(self, state: str, user_id: int) -> GameState:
+    async def create_game_session(self, state: str, game_id: int) -> GameState:
         obj = await GameStateModel.create(
             state=state,
+            game_id=game_id
+        )
+        return obj.to_dc()
+
+    async def create_game(self, id_lobby: int) -> Game:
+        obj = await GameModel.create(
+            id_lobby=id_lobby,
+        )
+        return obj.to_dc()
+
+    async def create_player(self, game_id: int, user_id: int, name: str) -> Player:
+        obj = await PlayerModel.create(
+            game_id=game_id,
             user_id=user_id,
+            name=name
+        )
+        return obj.to_dc()
+
+    async def create_score(self, game_id: int, player_id: int, score: int) -> Score:
+        obj = await ScoreModel.create(
+            game_id=game_id,
+            player_id=player_id,
+            score=score
         )
         return obj.to_dc()
 
@@ -30,24 +58,77 @@ class QuizAccessor(BaseAccessor):
         obj = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
         return None if obj is None else obj.to_dc()
 
+    async def get_game_by_chat_id(self, chat_id: int) -> Optional[Game]:
+        obj = await GameModel.query.where(GameModel.id_lobby == chat_id).gino.first()
+        return None if obj is None else obj.to_dc()
+
+    async def get_player_by_player_id(self, player_id: int) -> Optional[Player]:
+        obj = await PlayerModel.query.where(PlayerModel.player_id == player_id).gino.first()
+        return None if obj is None else obj.to_dc()
+
+    async def get_players_id_by_user_id(self, user_id: int) -> Optional[list[Player]]:
+        objs = await PlayerModel.query.where(PlayerModel.user_id == user_id).gino.all()
+        return [o.to_dc() for o in objs]
+
+    async def get_game_session_by_game_id(self, game_id: int) -> Optional[GameState]:
+        obj = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
+        return None if obj is None else obj.to_dc()
+
     async def delete_game_session_by_user(self, user_id: int):
         game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
         status = await game.delete()
         return status
 
-    async def set_game_session_theme(self, user_id: int, theme: str):
-        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
-        status = await game.update(theme=theme).apply()
+    async def get_scores_by_player_id(self, player_id: int) -> list[Score]:
+        objs = await ScoreModel.query.where(ScoreModel.player_id == player_id).gino.all()
+        return [o.to_dc() for o in objs]
+
+    async def get_score(self, game_id: int, player_id: int):
+        query = ScoreModel.outerjoin(
+            PlayerModel,
+            ScoreModel.player_id == player_id,
+        )
+        obj = await query.select().where(ScoreModel.game_id == game_id).gino.first()
+
+        return obj
+
+    async def delete_game_by_id(self, game_id: int):
+        game = await GameModel.query.where(GameModel.id == game_id).gino.first()
+
+        status = await game.delete()
         return status
 
-    async def set_game_session_date(self, user_id: int, date: int):
-        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
-        status = await game.update(date=date).apply()
+
+    async def set_game_session_theme(self, game_id: int, theme: str):
+        game_state = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
+        status = await game_state.update(theme=theme).apply()
         return status
 
-    async def set_game_session_state(self, user_id: int, state: str):
-        game = await GameStateModel.query.where(GameStateModel.user_id == user_id).gino.first()
+    async def set_game_session_date(self, game_id: int, date: int):
+        game_state = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
+        status = await game_state.update(date=date).apply()
+        return status
+
+    async def set_game_session_start_date(self, game_id: int, start_time: str):
+        game_state = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
+        print(game_state.id, start_time)
+        status = await game_state.update(start_time=start_time).apply()
+        print(status)
+        return status
+
+    async def set_game_session_question(self, game_id: int, question: str):
+        game_state = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
+        status = await game_state.update(question=question).apply()
+        return status
+
+    async def set_game_session_state(self, game_id: int, state: str):
+        game = await GameStateModel.query.where(GameStateModel.game_id == game_id).gino.first()
         status = await game.update(state=state).apply()
+        return status
+
+    async def set_player_score(self, player_id: int, scores: int):
+        score = await ScoreModel.query.where(ScoreModel.player_id == player_id).gino.first()
+        status = await score.update(score=scores).apply()
         return status
 
     async def get_theme_by_title(self, title: str) -> Optional[Theme]:
@@ -121,3 +202,27 @@ class QuizAccessor(BaseAccessor):
         objs = query
 
         return [o.to_dc() for o in objs]
+
+    async def list_players(self, game_id: int) -> list[Player]:
+        objs = await PlayerModel.query.where(PlayerModel.game_id == game_id).gino.all()
+        return [o.to_dc() for o in objs]
+
+    async def archive_theme(self, game_id: int):  # game --> game_state?
+        game_state = await self.get_game_session_by_game_id(game_id=game_id)
+        answered = game_state.theme
+        answered_list = game_state.answered
+        answered_list[len(answered_list)] = answered
+
+        game_session = await GameStateModel.query.where(GameStateModel.id == game_state.id).gino.first()
+        await game_session.update(answered=answered_list).apply()
+        # await game_session.update(theme="").apply()
+
+    async def archive_question(self, game_id: int):  # game --> game_state?
+        game_state = await self.get_game_session_by_game_id(game_id=game_id)
+        answered = game_state.question
+        answered_list = game_state.answered_questions
+        answered_list[len(answered_list)] = answered
+
+        game_session = await GameStateModel.query.where(GameStateModel.id == game_state.id).gino.first()
+        await game_session.update(answered_questions=answered_list).apply()
+        # await game_session.update(question="").apply()
