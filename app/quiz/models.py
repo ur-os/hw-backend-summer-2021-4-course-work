@@ -149,8 +149,8 @@ class PlayerModel(db.Model):
 
     id = db.Column(db.BigInteger(), primary_key=True, unique=True, autoincrement=True)
     game_id = db.Column(db.ForeignKey('game.id', ondelete='CASCADE'), nullable=True)
-    user_id = db.Column(db.BigInteger(), unique=True)
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    user_id = db.Column(db.BigInteger(), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
 
     def to_dc(self):
         return Player(

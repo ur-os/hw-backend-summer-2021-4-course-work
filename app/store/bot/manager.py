@@ -385,6 +385,9 @@ class BotManager:
 
     async def new_round(self, update: Update, game: Game, game_state: GameState):
         themes = await self.available_themes(update=update)
+        if not themes:
+            await self.finish_game(update=update)
+
         if update.object.body in themes:
             await self.app.store.quizzes.set_game_session_theme(game_id=game.id, theme=update.object.body)
 
